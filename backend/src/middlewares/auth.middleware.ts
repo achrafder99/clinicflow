@@ -1,30 +1,59 @@
-import { RequestHandler } from 'express';
+
+import type { RequestHandler } from 'express';
 import jwt from 'jsonwebtoken';
+
 import { env } from '../config/env';
-import { AppError } from '../utils/AppError';
-import { asyncHandler } from '../utils/asyncHandler';
 import { getUserById } from '../services/auth.service';
 import { UserRole } from '../types/express';
+import { AppError } from '../utils/AppError';
+import { asyncHandler } from '../utils/asyncHandler';
 
 export const authenticate = asyncHandler(async (req, _res, next) => {
-  const header = req.headers.authorization;
-  if (!header?.startsWith('Bearer ')) throw new AppError('Authentication required', 401);
+  const authorization = req.headers.authorization;
 
-  // Throws JsonWebTokenError / TokenExpiredError, mapped to 401 by the error middleware
-  const payload = jwt.verify(header.slice(7), env.jwtSecret) as jwt.JwtPayload;
+  if (!authorization?.startsWith('Bearer ')) {
+    throw new AppError('Authentication required', 401);
+  }
 
-  // Reload the user so deleted users or changed roles are respected immediately
-  const user = await getUserById(payload.sub as string);
-  if (!user) throw new AppError('User no longer exists', 401);
+  const token = authorization.slice(7).trim();
+
+  if (!token) {
+    throw new AppError('Authentication required', 401);
+  }
+
+  const payload = jwt.verify(token, env.jwtSecret);
+
+  if (
+    typeof payload === 'string' ||
+    typeof payload.sub !== 'string' ||
+    payload.sub.length === 0
+  ) {
+    throw new AppError('Invalid authentication token', 401);
+  }
+
+  const user = await getUserById(payload.sub);
+
+  if (!user) {
+    throw new AppError('User no longer exists', 401);
+  }
 
   req.user = user;
+
   next();
 });
 
 export const authorize =
   (...roles: UserRole[]): RequestHandler =>
   (req, _res, next) => {
-    if (!req.user) return next(new AppError('Authentication required', 401));
-    if (!roles.includes(req.user.role)) return next(new AppError('Forbidden: insufficient permissions', 403));
+    if (!req.user) {
+      return next(new AppError('Authentication required', 401));
+    }
+
+    if (!roles.includes(req.user.role)) {
+      return next(
+        new AppError('Forbidden: insufficient permissions', 403),
+      );
+    }
+
     next();
   };

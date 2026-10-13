@@ -15,6 +15,15 @@ interface CreateInput {
   notes?: string;
 }
 
+interface AppointmentFilters {
+  page?: number;
+  limit?: number;
+  date?: string;
+  status?: string;
+  patientId?: string;
+}
+
+
 export const create = async (d: CreateInput, userId: string) => {
   const patient = await query('SELECT 1 FROM patients WHERE id = $1 AND deleted_at IS NULL', [d.patientId]);
   if (!patient.rowCount) throw new AppError('Patient not found', 404);
@@ -33,16 +42,55 @@ export const getById = async (id: string) => {
   return rows[0];
 };
 
-export const list = async (f: { date?: string; status?: string; patientId?: string }) => {
+export const list = async (f: AppointmentFilters) => {
+  const page = f.page ?? 1;
+  const limit = f.limit ?? 10;
+  const offset = (page - 1) * limit;
+
+  const filters = `
+    WHERE ($1::date IS NULL OR (
+      a.appointment_date >= $1::date
+      AND a.appointment_date < $1::date + 1
+    ))
+    AND ($2::appointment_status IS NULL
+      OR a.status = $2::appointment_status)
+    AND ($3::uuid IS NULL
+      OR a.patient_id = $3::uuid)
+  `;
+
+  const values = [
+    f.date ?? null,
+    f.status ?? null,
+    f.patientId ?? null,
+  ];
+
+  // Fetch only the requested page.
   const { rows } = await query(
     `${SELECT}
-     WHERE ($1::date IS NULL OR (a.appointment_date >= $1::date AND a.appointment_date < $1::date + 1))
-       AND ($2::appointment_status IS NULL OR a.status = $2::appointment_status)
-       AND ($3::uuid IS NULL OR a.patient_id = $3::uuid)
-     ORDER BY a.appointment_date`,
-    [f.date ?? null, f.status ?? null, f.patientId ?? null]
+     ${filters}
+     ORDER BY a.appointment_date ASC, a.id ASC
+     LIMIT $4 OFFSET $5`,
+    [...values, limit, offset]
   );
-  return rows;
+
+  const countResult = await query<{ total: string }>(
+    `SELECT COUNT(*) AS total
+     FROM appointments a
+     JOIN patients p ON p.id = a.patient_id
+     ${filters}`,
+    values
+  );
+
+  const total = Number(countResult.rows[0].total);
+  const totalPages = Math.ceil(total / limit);
+
+  return {
+    data: rows,
+    page,
+    limit,
+    total,
+    totalPages,
+  };
 };
 
 export const updateStatus = async (id: string, status: string) => {

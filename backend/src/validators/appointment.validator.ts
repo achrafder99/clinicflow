@@ -13,7 +13,17 @@ export const createAppointmentSchema = z.object({
 export const updateStatusSchema = z.object({ status });
 
 export const listQuerySchema = z.object({
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Use format YYYY-MM-DD').optional(),
-  status: status.optional(),
-  patientId: z.string().uuid().optional(), 
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(10),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  status: z.enum(['pending', 'confirmed', 'cancelled']).optional(),
+  patientId: z.string().uuid().optional(),
+});
+
+export const appointmentListQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(10),
+  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
+  status: z.enum(['pending', 'confirmed', 'cancelled']).optional(),
+  patientId: z.string().uuid().optional(),
 });
