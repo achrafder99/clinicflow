@@ -1,0 +1,59 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: clinicflow
+      POSTGRES_USER: clinicflow
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-clinicflow_local_demo_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U clinicflow -d clinicflow"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+    networks:
+      - clinicflow
+
+  backend:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    environment:
+      PORT: 5000
+      NODE_ENV: development
+      DATABASE_URL: postgresql://clinicflow:${POSTGRES_PASSWORD:-clinicflow_local_demo_password}@db:5432/clinicflow
+      JWT_SECRET: ${JWT_SECRET:-clinicflow-local-demo-secret-change-before-deployment}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-1d}
+    depends_on:
+      db:
+        condition: service_healthy
+    command: >
+      sh -c "node dist/scripts/migrate.js &&
+      NODE_ENV=development node dist/scripts/seed.js &&
+      node dist/server.js"
+    ports:
+      - "5000:5000"
+    networks:
+      - clinicflow
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: /api
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+    networks:
+      - clinicflow
+
+volumes:
+  postgres_data:
+
+networks:
+  clinicflow:
+    driver: bridge
