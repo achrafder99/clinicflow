@@ -34,7 +34,15 @@ const appointments: [number, number, number, number, string, string][] = [
 async function run() {
   if (env.nodeEnv === 'production') throw new Error('Seed is disabled in production');
 
-  await pool.query('TRUNCATE appointments, patients, users CASCADE');
+  const existing = await pool.query<{ count: string }>(
+    'SELECT COUNT(*)::text AS count FROM users'
+  );
+
+  if (Number(existing.rows[0]?.count ?? 0) > 0) {
+    console.log('Seed skipped: database already contains users');
+    await pool.end();
+    return;
+  }
 
   const userIds: string[] = [];
   for (const u of users) {
