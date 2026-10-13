@@ -187,6 +187,3 @@ See [`docs/DESIGN.md`](docs/DESIGN.md#business-rule) for details.
 - All inputs validated with Zod; SQL queries are parameterized
 - <CORS configuration, helmet, etc. if applicable>
 
-## Project structure decisions / trade-offs
-
-<2–4 bullets: why raw SQL vs ORM, why Zod, why TypeScript, what you'd improve with more time>
