@@ -5,6 +5,41 @@ appointments and users, with a simple statistics dashboard.
 
 **Stack:** PostgreSQL · Express (Node.js, TypeScript) · React · Docker Compose
 
+## Quick start (Makefile)
+
+### Option A: one command (requires `make` and Docker)
+
+```bash
+git clone <repo-url> && cd clinicflow
+make up
+```
+
+`make up` creates `.env` from `.env.example` if it doesn't exist, then builds and
+starts the frontend, backend and PostgreSQL. The database is migrated and seeded
+automatically.
+
+### Option B: without `make`
+
+```bash
+git clone <repo-url> && cd clinicflow
+cp .env.example .env
+docker compose up --build
+```
+
+### Useful commands
+
+| Command        | Description                                          |
+|----------------|------------------------------------------------------|
+| `make up`      | Build and start everything (foreground)              |
+| `make start`   | Build and start everything in the background         |
+| `make down`    | Stop all containers                                  |
+| `make logs`    | Follow logs                                          |
+| `make ps`      | Show running containers                              |
+| `make reset`   | Stop and delete the database volume (fresh start)    |
+| `make help`    | List all commands                                    |
+
+`make` is optional: every target is a thin wrapper around `docker compose`.
+
 ## Features
 
 - JWT authentication with two roles: `admin` and `staff`
@@ -14,7 +49,7 @@ appointments and users, with a simple statistics dashboard.
 - Dashboard: total patients, today's appointments, pending and confirmed counts
 - Input validation (Zod), bcrypt password hashing, consistent error handling
 
-## Quick start (Docker, recommended)
+## (Docker, recommended)
 
 ```bash
 git clone <repo-url> && cd clinicflow
