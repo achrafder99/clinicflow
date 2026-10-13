@@ -1,0 +1,221 @@
+@import "tailwindcss";
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: system-ui, sans-serif;
+    background: #f4f6f8;
+    color: #1f2937;
+}
+
+h1 {
+    margin: 0 0 16px;
+    font-size: 1.5rem;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 24px auto;
+    padding: 0 16px;
+}
+
+.center {
+    text-align: center;
+    margin-top: 40px;
+}
+
+.spacer {
+    flex: 1;
+}
+
+.nav {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 24px;
+    background: #fff;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.nav nav {
+    display: flex;
+    gap: 12px;
+    margin-left: 16px;
+}
+
+.nav a {
+    color: #6b7280;
+    text-decoration: none;
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+.nav a.active {
+    background: #e0f2fe;
+    color: #0369a1;
+}
+
+.card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 16px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.stat {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    color: #6b7280;
+}
+
+.stat strong {
+    font-size: 2rem;
+    color: #0369a1;
+}
+
+label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: .85rem;
+    margin-bottom: 12px;
+}
+
+input,
+select,
+textarea {
+    padding: 8px 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font: inherit;
+}
+
+.btn {
+    padding: 8px 14px;
+    border: 0;
+    border-radius: 6px;
+    background: #0369a1;
+    color: #fff;
+    cursor: pointer;
+    font: inherit;
+}
+
+.btn:disabled {
+    opacity: .6;
+    cursor: default;
+}
+
+.btn.secondary {
+    background: #e5e7eb;
+    color: #1f2937;
+}
+
+.btn.danger {
+    background: #dc2626;
+}
+
+.btn.small {
+    padding: 4px 10px;
+    font-size: .85rem;
+}
+
+.error {
+    color: #b91c1c;
+    background: #fee2e2;
+    padding: 8px 10px;
+    border-radius: 6px;
+}
+
+.login {
+    max-width: 360px;
+    margin: 80px auto;
+}
+
+.toolbar {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+    align-items: end;
+}
+
+.toolbar label {
+    margin: 0;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+th,
+td {
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 1px solid #f3f4f6;
+    font-size: .9rem;
+}
+
+th {
+    background: #f9fafb;
+    color: #6b7280;
+}
+
+.actions {
+    display: flex;
+    gap: 6px;
+}
+
+.badge {
+    padding: 2px 8px;
+    border-radius: 99px;
+    font-size: .75rem;
+}
+
+.badge.pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.badge.confirmed {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.badge.cancelled {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.pager {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    justify-content: center;
+    margin-top: 16px;
+}
+
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .4);
+    display: grid;
+    place-items: center;
+}
+
+.modal {
+    width: 100%;
+    max-width: 440px;
+}
