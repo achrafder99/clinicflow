@@ -47,3 +47,27 @@ export const getUserById = async (id: string): Promise<AuthUser | null> => {
   );
   return rows[0] ? toAuthUser(rows[0]) : null;
 };
+
+export const register = async (input: {
+  fullName: string;
+  email: string;
+  password: string;
+  role: UserRole;
+}): Promise<AuthUser> => {
+  const passwordHash = await hashPassword(input.password);
+
+  try {
+    const { rows } = await query<UserRow>(
+      `INSERT INTO users (full_name, email, password_hash, role)
+       VALUES ($1, $2, $3, $4)
+       RETURNING id, email, full_name, role, password_hash`,
+      [input.fullName, input.email.toLowerCase(), passwordHash, input.role]
+    );
+    return toAuthUser(rows[0]);
+  } catch (err) {
+    if ((err as { code?: string }).code === '23505') {
+      throw new AppError('A user with this email already exists', 409);
+    }
+    throw err;
+  }
+};

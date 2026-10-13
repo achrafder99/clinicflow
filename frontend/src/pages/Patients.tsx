@@ -1,8 +1,6 @@
-
 import {
     useCallback,
     useEffect,
-    useMemo,
     useRef,
     useState,
     type FormEvent,
@@ -14,6 +12,7 @@ import {
 } from '../lib/patients';
 import { errMsg } from '../lib/api';
 import PaginationControls from '../componenets/PaginationControls';
+import ConfirmDialog from '../componenets/ConfirmDialog';
 
 type PatientFormProps = {
     patient: Patient | null;
@@ -238,6 +237,7 @@ export default function Patients() {
     const [notice, setNotice] = useState('');
     const [formOpen, setFormOpen] = useState(false);
     const [editingPatient, setEditingPatient] = useState<Patient | null>(null);
+    const [patientToDelete, setPatientToDelete] = useState<Patient | null>(null);
 
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
@@ -310,8 +310,6 @@ export default function Patients() {
         };
     }, [loadPatients]);
 
-    const filteredPatients = useMemo(() => patients, [patients]);
-
     function openCreateForm() {
         setEditingPatient(null);
         setError('');
@@ -346,23 +344,22 @@ export default function Patients() {
 
             // Refresh using the latest search and page.
             await loadPatients();
-        } catch (error) {
-            throw error;
         } finally {
             setSaving(false);
         }
     }
 
-    async function handleDelete(patient: Patient) {
-        const confirmed = window.confirm(
-            `Are you sure you want to delete "${patient.fullName}"?`,
-        );
-
-        if (!confirmed) return;
-
-        setDeletingId(patient.id);
+    function askDelete(patient: Patient) {
         setError('');
         setNotice('');
+        setPatientToDelete(patient);
+    }
+
+    async function confirmDelete() {
+        if (!patientToDelete) return;
+
+        const patient = patientToDelete;
+        setDeletingId(patient.id);
 
         try {
             await patientsApi.remove(patient.id);
@@ -378,6 +375,7 @@ export default function Patients() {
             setError(errMsg(error));
         } finally {
             setDeletingId(null);
+            setPatientToDelete(null);
         }
     }
 
@@ -476,7 +474,7 @@ export default function Patients() {
                             Loading patients...
                         </p>
                     </div>
-                ) : filteredPatients.length === 0 ? (
+                ) : patients.length === 0 ? (
                     <div className="py-14 text-center">
                         <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-gray-500">
                             <span className="text-xl">♙</span>
@@ -526,7 +524,7 @@ export default function Patients() {
                             </thead>
 
                             <tbody className="divide-y divide-gray-100">
-                                {filteredPatients.map((patient) => (
+                                {patients.map((patient) => (
                                     <tr
                                         key={patient.id}
                                         className="transition-colors hover:bg-gray-50"
@@ -580,7 +578,7 @@ export default function Patients() {
                                                 <button
                                                     type="button"
                                                     disabled={deletingId === patient.id}
-                                                    onClick={() => void handleDelete(patient)}
+                                                    onClick={() => askDelete(patient)}
                                                     className="font-medium text-red-600 hover:text-red-800 disabled:cursor-not-allowed disabled:opacity-50"
                                                 >
                                                     {deletingId === patient.id
@@ -618,6 +616,17 @@ export default function Patients() {
                             setEditingPatient(null);
                         }
                     }}
+                />
+            )}
+
+            {patientToDelete && (
+                <ConfirmDialog
+                    title="Delete patient"
+                    message={`Are you sure you want to delete "${patientToDelete.fullName}"? This action cannot be undone.`}
+                    confirmLabel="Delete"
+                    loading={deletingId === patientToDelete.id}
+                    onConfirm={() => void confirmDelete()}
+                    onCancel={() => setPatientToDelete(null)}
                 />
             )}
         </main>

@@ -131,6 +131,7 @@ All routes are prefixed with `/api`. Everything except login requires
 |--------|--------------------------------|-------------|----------------------------------|
 | GET    | `/health`                      | public      | API + DB health check            |
 | POST   | `/auth/login`                  | public      | Login, returns JWT               |
+| POST   | `/auth/register`               | **admin**   | Create a new user (admin or staff)
 | GET    | `/auth/me`                     | auth        | Current user                     |
 | POST   | `/patients`                    | auth        | Create patient                   |
 | GET    | `/patients?search=&page=&limit=` | auth      | Paginated list + search          |

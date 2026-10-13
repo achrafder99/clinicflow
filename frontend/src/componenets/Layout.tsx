@@ -11,6 +11,7 @@ export default function Layout() {
           <NavLink to="/" end>Dashboard</NavLink>
           <NavLink to="/patients">Patients</NavLink>
           <NavLink to="/appointments">Appointments</NavLink>
+          {user?.role === 'admin' && <NavLink to="/users">Users</NavLink>}
         </nav>
         <span className="spacer" />
         <small>{user?.fullName} ({user?.role})</small>
