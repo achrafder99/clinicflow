@@ -1,6 +1,10 @@
 import { Router } from 'express';
 import { query } from '../config/db';
 import { asyncHandler } from '../utils/asyncHandler';
+import patientRoutes from './patient.routes';
+import authRoutes from './auth.routes';
+import appointmentRoutes from './appointment.routes';
+import dashboardRoutes from './dashboard.routes';
 
 const router = Router();
 
@@ -12,10 +16,9 @@ router.get(
   })
 );
 
-// Later:
-// router.use('/auth', authRoutes);
-// router.use('/patients', patientRoutes);
-// router.use('/appointments', appointmentRoutes);
-// router.use('/dashboard', dashboardRoutes);
+router.use('/auth', authRoutes);
+router.use('/patients', patientRoutes);
+router.use('/appointments', appointmentRoutes);
+router.use('/dashboard', dashboardRoutes);
 
 export default router;
