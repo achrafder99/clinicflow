@@ -29,3 +29,6 @@ ps: ## Show running containers
 
 reset: ## Stop everything and delete the database volume (fresh start)
 	docker compose down -v
+
+test:
+	cd backend && npm test
