@@ -364,6 +364,10 @@ backend/src/
 ├── middlewares/   # Authentication, authorization and validation
 ├── config/        # Application and database configuration
 └── utils/         # Shared utilities
+├── scripts/       # Database migrations, seeding and user creation
+│   ├── create-user.ts  # Create a user account
+│   ├── migrate.ts      # Apply database migrations
+│   └── seed.ts         # Populate the database with initial data
 ```
 
 ### Request Lifecycle
