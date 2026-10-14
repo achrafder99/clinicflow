@@ -4,6 +4,7 @@ import {
     useRef,
     useState,
     type FormEvent,
+    type SVGProps,
 } from 'react';
 import {
     patientsApi,
@@ -13,6 +14,93 @@ import {
 import { errMsg } from '../lib/api';
 import PaginationControls from '../componenets/PaginationControls';
 import ConfirmDialog from '../componenets/ConfirmDialog';
+
+/* ---------- Icons (inline, no extra dependency) ---------- */
+
+type IconProps = SVGProps<SVGSVGElement>;
+
+function Icon({ children, ...props }: IconProps) {
+    return (
+        <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.75}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+            {...props}
+        >
+            {children}
+        </svg>
+    );
+}
+
+const PencilIcon = (props: IconProps) => (
+    <Icon {...props}>
+        <path d="M16.9 3.6a2.1 2.1 0 0 1 3 3L8 18.5 3.5 20 5 15.5 16.9 3.6Z" />
+        <path d="m14.5 6 3.5 3.5" />
+    </Icon>
+);
+
+const TrashIcon = (props: IconProps) => (
+    <Icon {...props}>
+        <path d="M4 7h16" />
+        <path d="M10 11v6M14 11v6" />
+        <path d="M6 7l1 12.1a2 2 0 0 0 2 1.9h6a2 2 0 0 0 2-1.9L18 7" />
+        <path d="M9 7V4.5A.5.5 0 0 1 9.5 4h5a.5.5 0 0 1 .5.5V7" />
+    </Icon>
+);
+
+const XIcon = (props: IconProps) => (
+    <Icon {...props}>
+        <path d="M6 6l12 12M18 6 6 18" />
+    </Icon>
+);
+
+const PlusIcon = (props: IconProps) => (
+    <Icon {...props}>
+        <path d="M12 5v14M5 12h14" />
+    </Icon>
+);
+
+const RefreshIcon = (props: IconProps) => (
+    <Icon {...props}>
+        <path d="M20 11a8 8 0 0 0-14.3-4.5L4 8.5" />
+        <path d="M4 4v4.5h4.5" />
+        <path d="M4 13a8 8 0 0 0 14.3 4.5l1.7-2" />
+        <path d="M20 20v-4.5h-4.5" />
+    </Icon>
+);
+
+const UsersIcon = (props: IconProps) => (
+    <Icon {...props}>
+        <circle cx="9" cy="8" r="3.5" />
+        <path d="M2.5 20a6.5 6.5 0 0 1 13 0" />
+        <path d="M16 4.6a3.5 3.5 0 0 1 0 6.8" />
+        <path d="M18 14.2a6.5 6.5 0 0 1 3.5 5.8" />
+    </Icon>
+);
+
+const LockIcon = (props: IconProps) => (
+    <Icon {...props}>
+        <rect x="5" y="11" width="14" height="9" rx="2" />
+        <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+    </Icon>
+);
+
+/* ---------- Shared class names ---------- */
+
+// No horizontal padding here, so each usage sets its own and nothing conflicts.
+const inputBox =
+    'w-full rounded-md border border-zinc-300 bg-white text-[13px] text-zinc-900 shadow-sm outline-none transition-colors placeholder:text-zinc-400 hover:border-zinc-400 focus:border-teal-600 focus:ring-2 focus:ring-teal-600/25';
+
+const inputBase = `${inputBox} px-3`;
+
+const iconButtonBase =
+    'inline-flex size-8 cursor-pointer items-center justify-center rounded-md text-zinc-500 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-40';
+
+/* ---------- Form ---------- */
 
 type PatientFormProps = {
     patient: Patient | null;
@@ -55,7 +143,7 @@ function PatientForm({
 
     return (
         <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4"
+            className="fixed inset-0 z-50 flex items-end justify-center bg-zinc-900/30 p-0 backdrop-blur-md backdrop-saturate-150 sm:items-center sm:p-4"
             onMouseDown={(event) => {
                 if (event.target === event.currentTarget && !saving) {
                     onCancel();
@@ -66,21 +154,31 @@ function PatientForm({
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="patient-form-title"
-                className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6 shadow-xl"
+                className="max-h-[92vh] w-full max-w-[480px] overflow-y-auto rounded-t-2xl bg-white shadow-2xl shadow-zinc-950/20 ring-1 ring-zinc-950/5 sm:rounded-2xl"
             >
-                <div className="mb-6 flex items-start justify-between gap-4">
-                    <div>
-                        <h2
-                            id="patient-form-title"
-                            className="text-xl font-semibold text-gray-900"
-                        >
-                            {patient ? 'Edit patient' : 'Add patient'}
-                        </h2>
-                        <p className="mt-1 text-sm text-gray-500">
-                            {patient
-                                ? 'Update the patient information below.'
-                                : 'Enter the information for the new patient.'}
-                        </p>
+                {/* Header */}
+                <div className="flex items-start justify-between gap-4 border-b border-zinc-100 px-6 pb-4 pt-5">
+                    <div className="flex items-start gap-3">
+                        <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-teal-50 text-teal-700 ring-1 ring-inset ring-teal-700/10">
+                            {patient ? (
+                                <PencilIcon className="size-[18px]" />
+                            ) : (
+                                <PlusIcon className="size-[18px]" />
+                            )}
+                        </div>
+                        <div>
+                            <h2
+                                id="patient-form-title"
+                                className="text-[15px] font-semibold leading-tight text-zinc-900"
+                            >
+                                {patient ? 'Edit patient' : 'Add patient'}
+                            </h2>
+                            <p className="mt-1 text-[13px] leading-snug text-zinc-500">
+                                {patient
+                                    ? 'Update the patient information below.'
+                                    : 'Enter the information for the new patient.'}
+                            </p>
+                        </div>
                     </div>
 
                     <button
@@ -88,136 +186,154 @@ function PatientForm({
                         onClick={onCancel}
                         disabled={saving}
                         aria-label="Close form"
-                        className="rounded-lg px-2 py-1 text-xl text-gray-500 hover:bg-gray-100 disabled:opacity-50"
+                        className={`${iconButtonBase} -mr-2 -mt-1 size-8 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-700`}
                     >
-                        ×
+                        <XIcon className="size-4" />
                     </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                        <label
-                            htmlFor="fullName"
-                            className="mb-1 block text-sm font-medium text-gray-700"
-                        >
-                            Full name *
-                        </label>
-                        <input
-                            id="fullName"
-                            value={fullName}
-                            onChange={(event) => setFullName(event.target.value)}
-                            required
-                            minLength={2}
-                            autoFocus
-                            className="w-full rounded-lg border border-gray-300 px-3 py-2.5 outline-none focus:border-blue-500"
-                            placeholder="e.g. Salma Tazi"
-                        />
+                <form onSubmit={handleSubmit}>
+                    {/* Fields */}
+                    <div className="space-y-4 px-6 py-5">
+                        <div>
+                            <label
+                                htmlFor="fullName"
+                                className="mb-1.5 block text-[13px] font-medium text-zinc-700"
+                            >
+                                Full name <span className="text-zinc-400">*</span>
+                            </label>
+                            <input
+                                id="fullName"
+                                value={fullName}
+                                onChange={(event) => setFullName(event.target.value)}
+                                required
+                                minLength={2}
+                                autoFocus
+                                className={`${inputBase} h-9`}
+                                placeholder="e.g. Salma Tazi"
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            <div>
+                                <label
+                                    htmlFor="cin"
+                                    className="mb-1.5 block text-[13px] font-medium text-zinc-700"
+                                >
+                                    CIN <span className="text-zinc-400">*</span>
+                                </label>
+                                <input
+                                    id="cin"
+                                    value={cin}
+                                    onChange={(event) =>
+                                        setCin(event.target.value.toUpperCase())
+                                    }
+                                    required
+                                    minLength={4}
+                                    className={`${inputBase} h-9 font-mono uppercase tracking-wide placeholder:font-sans placeholder:normal-case placeholder:tracking-normal`}
+                                    placeholder="e.g. AB123456"
+                                />
+                            </div>
+
+                            <div>
+                                <label
+                                    htmlFor="phone"
+                                    className="mb-1.5 block text-[13px] font-medium text-zinc-700"
+                                >
+                                    Phone <span className="text-zinc-400">*</span>
+                                </label>
+                                <input
+                                    id="phone"
+                                    type="tel"
+                                    value={phone}
+                                    onChange={(event) => setPhone(event.target.value)}
+                                    required
+                                    minLength={6}
+                                    className={`${inputBase} h-9 tabular-nums`}
+                                    placeholder="e.g. 0612345678"
+                                />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label
+                                htmlFor="birthDate"
+                                className="mb-1.5 block text-[13px] font-medium text-zinc-700"
+                            >
+                                Birth date <span className="text-zinc-400">*</span>
+                            </label>
+                            <input
+                                id="birthDate"
+                                type="date"
+                                value={birthDate}
+                                max={new Date().toISOString().slice(0, 10)}
+                                onChange={(event) => setBirthDate(event.target.value)}
+                                required
+                                className={`${inputBase} h-9 cursor-pointer tabular-nums`}
+                            />
+                        </div>
+
+                        <div>
+                            <label
+                                htmlFor="address"
+                                className="mb-1.5 flex items-baseline justify-between text-[13px] font-medium text-zinc-700"
+                            >
+                                Address
+                                <span className="text-xs font-normal text-zinc-400">
+                                    Optional
+                                </span>
+                            </label>
+                            <textarea
+                                id="address"
+                                value={address}
+                                onChange={(event) => setAddress(event.target.value)}
+                                rows={2}
+                                className={`${inputBase} resize-y py-2`}
+                                placeholder="Street, city"
+                            />
+                        </div>
+
+                        {formError && (
+                            <p
+                                role="alert"
+                                className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-[13px] text-red-700"
+                            >
+                                {formError}
+                            </p>
+                        )}
                     </div>
 
-                    <div>
-                        <label
-                            htmlFor="cin"
-                            className="mb-1 block text-sm font-medium text-gray-700"
-                        >
-                            CIN *
-                        </label>
-                        <input
-                            id="cin"
-                            value={cin}
-                            onChange={(event) =>
-                                setCin(event.target.value.toUpperCase())
-                            }
-                            required
-                            minLength={4}
-                            className="w-full rounded-lg border border-gray-300 px-3 py-2.5 uppercase outline-none focus:border-blue-500"
-                            placeholder="e.g. AB123456"
-                        />
-                    </div>
-
-                    <div>
-                        <label
-                            htmlFor="phone"
-                            className="mb-1 block text-sm font-medium text-gray-700"
-                        >
-                            Phone *
-                        </label>
-                        <input
-                            id="phone"
-                            type="tel"
-                            value={phone}
-                            onChange={(event) => setPhone(event.target.value)}
-                            required
-                            minLength={6}
-                            className="w-full rounded-lg border border-gray-300 px-3 py-2.5 outline-none focus:border-blue-500"
-                            placeholder="e.g. 0612345678"
-                        />
-                    </div>
-
-                    <div>
-                        <label
-                            htmlFor="birthDate"
-                            className="mb-1 block text-sm font-medium text-gray-700"
-                        >
-                            Birth date *
-                        </label>
-                        <input
-                            id="birthDate"
-                            type="date"
-                            value={birthDate}
-                            max={new Date().toISOString().slice(0, 10)}
-                            onChange={(event) => setBirthDate(event.target.value)}
-                            required
-                            className="w-full rounded-lg border border-gray-300 px-3 py-2.5 outline-none focus:border-blue-500"
-                        />
-                    </div>
-
-                    <div>
-                        <label
-                            htmlFor="address"
-                            className="mb-1 block text-sm font-medium text-gray-700"
-                        >
-                            Address
-                        </label>
-                        <textarea
-                            id="address"
-                            value={address}
-                            onChange={(event) => setAddress(event.target.value)}
-                            rows={2}
-                            className="w-full resize-y rounded-lg border border-gray-300 px-3 py-2.5 outline-none focus:border-blue-500"
-                            placeholder="Optional address"
-                        />
-                    </div>
-
-                    {formError && (
-                        <p
-                            role="alert"
-                            className="rounded-lg bg-red-50 p-3 text-sm text-red-700"
-                        >
-                            {formError}
+                    {/* Footer */}
+                    <div className="flex items-center justify-between gap-3 border-t border-zinc-100 bg-zinc-50/80 px-6 py-3.5">
+                        <p className="hidden text-xs text-zinc-400 sm:block">
+                            <span className="text-zinc-400">*</span> Required
                         </p>
-                    )}
 
-                    <div className="flex justify-end gap-3 border-t border-gray-100 pt-4">
-                        <button
-                            type="button"
-                            onClick={onCancel}
-                            disabled={saving}
-                            className="rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
-                        >
-                            Cancel
-                        </button>
+                        <div className="ml-auto flex gap-2">
+                            <button
+                                type="button"
+                                onClick={onCancel}
+                                disabled={saving}
+                                className="h-8 cursor-pointer rounded-md border border-zinc-300 bg-white px-3 text-[13px] font-medium text-zinc-700 shadow-sm transition-colors hover:bg-zinc-50 active:bg-zinc-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                                Cancel
+                            </button>
 
-                        <button
-                            type="submit"
-                            disabled={saving}
-                            className="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
-                        >
-                            {saving
-                                ? 'Saving...'
-                                : patient
-                                  ? 'Save changes'
-                                  : 'Create patient'}
-                        </button>
+                            <button
+                                type="submit"
+                                disabled={saving}
+                                className="inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-md bg-teal-700 px-3.5 text-[13px] font-medium text-white shadow-sm transition-colors hover:bg-teal-800 active:bg-teal-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-60"
+                            >
+                                {saving && (
+                                    <RefreshIcon className="size-3.5 animate-spin" />
+                                )}
+                                {saving
+                                    ? 'Saving...'
+                                    : patient
+                                      ? 'Save changes'
+                                      : 'Create patient'}
+                            </button>
+                        </div>
                     </div>
                 </form>
             </section>
@@ -225,7 +341,16 @@ function PatientForm({
     );
 }
 
-export default function Patients() {
+/* ---------- Page ---------- */
+
+type PatientsProps = {
+    // Staff accounts are read/edit only. Wire this to your auth state.
+    role?: 'admin' | 'staff' | (string & {});
+};
+
+export default function Patients({ role }: PatientsProps) {
+    const canDelete = role !== 'staff';
+
     const [patients, setPatients] = useState<Patient[]>([]);
     const [total, setTotal] = useState(0);
     const [search, setSearch] = useState('');
@@ -350,13 +475,17 @@ export default function Patients() {
     }
 
     function askDelete(patient: Patient) {
+        // Defensive guard: the button is disabled for staff,
+        // but never rely on the UI alone.
+        if (!canDelete) return;
+
         setError('');
         setNotice('');
         setPatientToDelete(patient);
     }
 
     async function confirmDelete() {
-        if (!patientToDelete) return;
+        if (!patientToDelete || !canDelete) return;
 
         const patient = patientToDelete;
         setDeletingId(patient.id);
@@ -380,13 +509,13 @@ export default function Patients() {
     }
 
     return (
-        <main className="space-y-6">
-            <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <main className="space-y-4">
+            <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                    <h1 className="text-2xl font-semibold text-gray-900">
+                    <h1 className="text-xl font-semibold tracking-tight text-zinc-900">
                         Patients
                     </h1>
-                    <p className="mt-1 text-sm text-gray-500">
+                    <p className="mt-1 text-[13px] text-zinc-500">
                         Manage your clinic&apos;s patient records.
                     </p>
                 </div>
@@ -394,23 +523,24 @@ export default function Patients() {
                 <button
                     type="button"
                     onClick={openCreateForm}
-                    className="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-blue-700"
+                    className="inline-flex h-8 cursor-pointer items-center gap-1.5 self-start rounded-md bg-teal-700 pl-2.5 pr-3.5 text-[13px] font-medium text-white shadow-sm transition-colors hover:bg-teal-800 active:bg-teal-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 sm:self-auto"
                 >
-                    + Add patient
+                    <PlusIcon className="size-4" />
+                    Add patient
                 </button>
             </header>
 
             {notice && (
                 <div
                     role="status"
-                    className="flex items-center justify-between gap-3 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800"
+                    className="flex items-center justify-between gap-3 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-[13px] text-emerald-800"
                 >
                     <span>{notice}</span>
                     <button
                         type="button"
                         onClick={() => setNotice('')}
                         aria-label="Dismiss notification"
-                        className="text-green-800 hover:underline"
+                        className="shrink-0 cursor-pointer rounded text-xs font-medium text-emerald-700 transition-colors hover:text-emerald-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-600"
                     >
                         Dismiss
                     </button>
@@ -420,71 +550,92 @@ export default function Patients() {
             {error && (
                 <div
                     role="alert"
-                    className="flex items-center justify-between gap-3 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700"
+                    className="flex items-center justify-between gap-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-[13px] text-red-800"
                 >
                     <span>{error}</span>
                     <button
                         type="button"
                         onClick={() => void loadPatients()}
                         disabled={loading}
-                        className="shrink-0 font-medium underline disabled:opacity-50"
+                        className="shrink-0 cursor-pointer rounded text-xs font-medium underline underline-offset-2 transition-colors hover:text-red-950 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         Retry
                     </button>
                 </div>
             )}
 
-            <section className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
-                <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                        <h2 className="font-semibold text-gray-900">
+            <section className="overflow-hidden rounded-lg border border-zinc-200 bg-white">
+                <div className="flex flex-col gap-3 border-b border-zinc-200 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex items-baseline gap-2">
+                        <h2 className="text-[13px] font-semibold text-zinc-900">
                             All patients
                         </h2>
-                        <p className="mt-1 text-sm text-gray-500">
+                        <p className="text-xs tabular-nums text-zinc-500">
                             {debouncedSearch
                                 ? `${total} matching patients`
                                 : `${total} patient records`}
                         </p>
                     </div>
 
-                    <div className="flex flex-col gap-2 sm:flex-row">
-                        <input
-                            type="search"
-                            value={search}
-                            onChange={(event) => setSearch(event.target.value)}
-                            placeholder="Search name, CIN, or phone..."
-                            aria-label="Search patients"
-                            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-blue-500 sm:w-72"
-                        />
+                    <div className="flex items-center gap-2">
+                        <div className="relative flex-1 sm:flex-none">
+                            <input
+                                type="search"
+                                value={search}
+                                onChange={(event) => setSearch(event.target.value)}
+                                placeholder="Search name, CIN, or phone..."
+                                aria-label="Search patients"
+                                className={`${inputBox} h-8 pl-9 pr-3 shadow-none sm:w-72`}
+                            />
+                        </div>
 
                         <button
                             type="button"
                             onClick={() => void loadPatients()}
                             disabled={loading}
-                            className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                            aria-label="Refresh list"
+                            title="Refresh"
+                            className={`${iconButtonBase} border border-zinc-300 bg-white hover:bg-zinc-50 hover:text-zinc-800 active:bg-zinc-100`}
                         >
-                            {loading ? 'Loading...' : 'Refresh'}
+                            <RefreshIcon
+                                className={`size-4 ${loading ? 'animate-spin' : ''}`}
+                            />
                         </button>
                     </div>
                 </div>
 
                 {loading ? (
-                    <div className="py-14 text-center">
-                        <p className="text-sm text-gray-500">
-                            Loading patients...
-                        </p>
+                    <div
+                        className="divide-y divide-zinc-100"
+                        role="status"
+                        aria-label="Loading patients"
+                    >
+                        {Array.from({ length: 5 }).map((_, index) => (
+                            <div
+                                key={index}
+                                className="flex items-center gap-3 px-4 py-3"
+                            >
+                                <div className="size-8 animate-pulse rounded-md bg-zinc-100" />
+                                <div className="flex-1 space-y-1.5">
+                                    <div className="h-3 w-40 animate-pulse rounded bg-zinc-100" />
+                                    <div className="h-2.5 w-24 animate-pulse rounded bg-zinc-100" />
+                                </div>
+                                <div className="hidden h-3 w-20 animate-pulse rounded bg-zinc-100 sm:block" />
+                                <div className="hidden h-3 w-24 animate-pulse rounded bg-zinc-100 sm:block" />
+                            </div>
+                        ))}
                     </div>
                 ) : patients.length === 0 ? (
-                    <div className="py-14 text-center">
-                        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 text-gray-500">
-                            <span className="text-xl">♙</span>
+                    <div className="px-4 py-16 text-center">
+                        <div className="mx-auto mb-3 flex size-10 items-center justify-center rounded-lg border border-zinc-200 bg-zinc-50 text-zinc-400">
+                            <UsersIcon className="size-5" />
                         </div>
-                        <h3 className="font-medium text-gray-900">
+                        <h3 className="text-[13px] font-medium text-zinc-900">
                             {debouncedSearch
                                 ? 'No matching patients'
                                 : 'No patients found'}
                         </h3>
-                        <p className="mt-1 text-sm text-gray-500">
+                        <p className="mx-auto mt-1 max-w-xs text-[13px] text-zinc-500">
                             {debouncedSearch
                                 ? 'Try a different name, CIN, or phone number.'
                                 : 'Add your first patient to get started.'}
@@ -494,101 +645,131 @@ export default function Patients() {
                             <button
                                 type="button"
                                 onClick={openCreateForm}
-                                className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
+                                className="mt-4 inline-flex h-8 cursor-pointer items-center gap-1.5 rounded-md bg-teal-700 pl-2.5 pr-3.5 text-[13px] font-medium text-white shadow-sm transition-colors hover:bg-teal-800 active:bg-teal-900 focus:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2"
                             >
+                                <PlusIcon className="size-4" />
                                 Add patient
                             </button>
                         )}
                     </div>
                 ) : (
-                    <div className="overflow-x-auto">
-                        <table className="w-full min-w-[700px] text-left text-sm">
-                            <thead className="border-b border-gray-200 bg-gray-50 text-gray-500">
+                    <div className="overflow-x-auto [&>:last-child]:border-t [&>:last-child]:border-zinc-200 [&>:last-child]:px-4 [&>:last-child]:py-3">
+                        <table className="w-full min-w-[680px] text-left text-[13px]">
+                            <thead className="border-b border-zinc-200 bg-zinc-50/70 text-[11px] uppercase tracking-wider text-zinc-500">
                                 <tr>
-                                    <th scope="col" className="px-3 py-3 font-medium">
+                                    <th scope="col" className="px-4 py-2 font-medium">
                                         Patient
                                     </th>
-                                    <th scope="col" className="px-3 py-3 font-medium">
+                                    <th scope="col" className="px-4 py-2 font-medium">
                                         CIN
                                     </th>
-                                    <th scope="col" className="px-3 py-3 font-medium">
+                                    <th scope="col" className="px-4 py-2 font-medium">
                                         Phone
                                     </th>
-                                    <th scope="col" className="px-3 py-3 font-medium">
+                                    <th scope="col" className="px-4 py-2 font-medium">
                                         Birth date
                                     </th>
-                                    <th scope="col" className="px-3 py-3 text-right font-medium">
-                                        Actions
+                                    <th
+                                        scope="col"
+                                        className="w-24 px-4 py-2 text-right font-medium"
+                                    >
+                                        <span className="sr-only">Actions</span>
                                     </th>
                                 </tr>
                             </thead>
 
-                            <tbody className="divide-y divide-gray-100">
-                                {patients.map((patient) => (
-                                    <tr
-                                        key={patient.id}
-                                        className="transition-colors hover:bg-gray-50"
-                                    >
-                                        <td className="px-3 py-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 text-sm font-semibold text-blue-700">
-                                                    {patient.fullName
-                                                        .split(/\s+/)
-                                                        .filter(Boolean)
-                                                        .slice(0, 2)
-                                                        .map((part) => part[0])
-                                                        .join('')
-                                                        .toUpperCase()}
-                                                </div>
-                                                <div>
-                                                    <p className="font-medium text-gray-900">
-                                                        {patient.fullName}
-                                                    </p>
-                                                    {patient.address && (
-                                                        <p className="mt-0.5 max-w-48 truncate text-xs text-gray-500">
-                                                            {patient.address}
+                            <tbody className="divide-y divide-zinc-100">
+                                {patients.map((patient) => {
+                                    const isDeleting = deletingId === patient.id;
+
+                                    return (
+                                        <tr
+                                            key={patient.id}
+                                            className="transition-colors hover:bg-zinc-50/80"
+                                        >
+                                            <td className="px-4 py-2.5">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="flex size-8 shrink-0 items-center justify-center rounded-md bg-teal-50 text-[11px] font-semibold tracking-wide text-teal-800 ring-1 ring-inset ring-teal-700/10">
+                                                        {patient.fullName
+                                                            .split(/\s+/)
+                                                            .filter(Boolean)
+                                                            .slice(0, 2)
+                                                            .map((part) => part[0])
+                                                            .join('')
+                                                            .toUpperCase()}
+                                                    </div>
+                                                    <div className="min-w-0">
+                                                        <p className="font-medium text-zinc-900">
+                                                            {patient.fullName}
                                                         </p>
-                                                    )}
+                                                        {patient.address && (
+                                                            <p className="max-w-56 truncate text-xs text-zinc-500">
+                                                                {patient.address}
+                                                            </p>
+                                                        )}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </td>
+                                            </td>
 
-                                        <td className="px-3 py-4 text-gray-600">
-                                            {patient.cin}
-                                        </td>
-                                        <td className="px-3 py-4 text-gray-600">
-                                            {patient.phone}
-                                        </td>
-                                        <td className="px-3 py-4 text-gray-600">
-                                            {patient.birthDate
-                                                ? patient.birthDate.slice(0, 10)
-                                                : '—'}
-                                        </td>
+                                            <td className="px-4 py-2.5">
+                                                <span className="rounded bg-zinc-100 px-1.5 py-0.5 font-mono text-xs tracking-wide text-zinc-700">
+                                                    {patient.cin}
+                                                </span>
+                                            </td>
+                                            <td className="px-4 py-2.5 tabular-nums text-zinc-600">
+                                                {patient.phone}
+                                            </td>
+                                            <td className="px-4 py-2.5 tabular-nums text-zinc-600">
+                                                {patient.birthDate
+                                                    ? patient.birthDate.slice(0, 10)
+                                                    : '—'}
+                                            </td>
 
-                                        <td className="px-3 py-4">
-                                            <div className="flex justify-end gap-3">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => openEditForm(patient)}
-                                                    className="font-medium text-blue-600 hover:text-blue-800"
-                                                >
-                                                    Edit
-                                                </button>
+                                            <td className="px-4 py-2.5">
+                                                <div className="flex justify-end gap-0.5">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => openEditForm(patient)}
+                                                        aria-label={`Edit ${patient.fullName}`}
+                                                        title="Edit"
+                                                        className={`${iconButtonBase} hover:bg-teal-50 hover:text-teal-700`}
+                                                    >
+                                                        <PencilIcon className="size-4" />
+                                                    </button>
 
-                                                <button
-                                                    type="button"
-                                                    disabled={deletingId === patient.id}
-                                                    onClick={() => askDelete(patient)}
-                                                    className="font-medium text-red-600 hover:text-red-800 disabled:cursor-not-allowed disabled:opacity-50"
-                                                >
-                                                    {deletingId === patient.id
-                                                        ? 'Deleting...'
-                                                        : 'Delete'}
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))}
+                                                    <span
+                                                        title={
+                                                            canDelete
+                                                                ? 'Delete'
+                                                                : 'Staff accounts cannot delete patients'
+                                                        }
+                                                        className="inline-flex"
+                                                    >
+                                                        <button
+                                                            type="button"
+                                                            disabled={!canDelete || isDeleting}
+                                                            onClick={() => askDelete(patient)}
+                                                            aria-label={
+                                                                canDelete
+                                                                    ? `Delete ${patient.fullName}`
+                                                                    : `Delete ${patient.fullName} (not allowed for staff)`
+                                                            }
+                                                            className={`${iconButtonBase} hover:bg-red-50 hover:text-red-600 focus-visible:ring-red-600`}
+                                                        >
+                                                            {isDeleting ? (
+                                                                <RefreshIcon className="size-4 animate-spin" />
+                                                            ) : canDelete ? (
+                                                                <TrashIcon className="size-4" />
+                                                            ) : (
+                                                                <LockIcon className="size-4" />
+                                                            )}
+                                                        </button>
+                                                    </span>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
                             </tbody>
                         </table>
 
