@@ -171,6 +171,8 @@ backend/src/
 └── utils/         # asyncHandler, helpers
 ```
 
+API docs and testing guide: [docs/swagger-testing.md](docs/swagger-testing.md)
+
 Request flow: `route → validate → authenticate/authorize → controller → service → DB`
 
 ## Business rule: 30-minute window
